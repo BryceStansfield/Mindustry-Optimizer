@@ -141,7 +141,8 @@ Overlap_Constraints = {(x,y): solver.Add(sum(B[x,y,f] for f in F) <= 1.0 - sum(M
                         for x in X for y in Y}
 
 ## 6)
-Belt_Conservation = {(x,y): solver.Add(sum(B_out[x,y,f] for f in F) == sum(feeds_into(x,y)))}
+Belt_Conservation = {(x,y): solver.Add(sum(B_out[x,y,f] for f in F) == sum(feeds_into(x,y)))
+                    for x in X for y in Y}
 
 ## 7) Conservation of flow
 Conservation_Constraint = solver.Add(sum(m for m in M_out.values()) == sum(feeding_outside))
@@ -173,9 +174,6 @@ if status == pywraplp.Solver.OPTIMAL:
         for f in F:
             if B[x,y,f].solution_value() > 0.5: 
                 grid[y][x] = belt_char_map[f]
-                print("B_out[{}, {}, {}] = {}".format(x,y,f,B_out[x,y,f].solution_value()), "feed in = {}".format(sum([i.solution_value() for i in feeds_into(x,y)])))
-                print(sum(B_out[x,y,f].solution_value() for f in F), sum(i.solution_value() for i in feeds_into(x,y)))
-    print("Obj val: {}".format(solver.Objective().Value()))
     # Grid printing
     for line in grid:
         for char in line:
