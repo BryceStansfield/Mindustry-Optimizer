@@ -6,6 +6,7 @@ import ortools
 # Instantiating our solver
 solver = pywraplp.Solver("Mindustry Mining Solver",
                         pywraplp.Solver.CBC_MIXED_INTEGER_PROGRAMMING)
+#solver.EnableOutput()
 
 ### Importing our problem. ###
 # Problem must be rectangular, can change later
@@ -16,7 +17,7 @@ char_map = {"x":-1, ".":0, "o":1}
 ore_map = []
 
 # Reading and formatting the file
-with open("problems/problem_ex1.txt") as f:
+with open("problems/MediumOreSquare.txt") as f:
     for line in f:
         line = line.strip()
         map_line = tuple(map(lambda x: char_map[x], line))
@@ -29,7 +30,7 @@ if not all([len(line) == len(ore_map[0]) for line in ore_map]):
     
 
 ### Configuration Variables ###
-max_m_output = 5
+max_m_output = 1
 max_b_output = 5
 
 ### Setting up our iterators ###
@@ -148,6 +149,7 @@ Belt_Conservation = {(x,y): solver.Add(sum(B_out[x,y,f] for f in F) == sum(feeds
 Conservation_Constraint = solver.Add(sum(m for m in M_out.values()) == sum(feeding_outside))
 
 
+print("Variables & Constraints finished!")
 ### What do we optimize ###
 solver.Maximize(sum(b for b in feeding_outside))
 status = solver.Solve()
@@ -159,7 +161,8 @@ if status == pywraplp.Solver.OPTIMAL:
     print('Number of constraints =', solver.NumConstraints())
 
     # Printing the grid
-    grid = [["." for x in X] for y in Y]
+    char_map = {-1:"x", 0:".", 1:"o"}
+    grid = [[ore_map[y][x] for x in X] for y in Y]
 
     # Adding machines
     for (x,y) in itertools.product(X,Y):
@@ -181,4 +184,4 @@ if status == pywraplp.Solver.OPTIMAL:
         print()
 
 else:
-    print("No Optimal Assignment for this problem")
+    print("No Optimal Assignment found for this problem")
